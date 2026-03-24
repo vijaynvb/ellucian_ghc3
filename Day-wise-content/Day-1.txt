@@ -54,3 +54,75 @@ P2P                copilot                ->          LLM []
 
 
 1. Apple [fruit, company, calories, nutirients, stocks, phones, laptops]
+
+
+1. Github Configurations :-
+    1. github account -> 
+
+1. LLM models are stateless service: 
+2. LLM's are pretrained models: cutof time for training 
+    real time data is not available for the model 
+    Tool Calling mechanism -> invoke a tool and get the data 
+
+client          server
+request 1.  ->  request1 process response -> forgets the request 
+request 2   ->  request2 :
+Tools       ->  Tools
+
+
+user -> prompt -> create a image of tajmahal with current bangalore weather as background
+
+Agentic AI Application: 
+
+master agent [orchastrator, llm, tools, rag]
+plan-> todo list
+  agent 3 ->  task 1-> get tajmahal image 
+  agent 2 ->  task 2-> get the bangalore current weather
+  agent 1 ->  task 3-> create background for image with the weather given 
+
+    1. Agent [LLM [Images], Tools, RAG [costum context [propritery data] given for you agent]]
+    2. Agent [LLM [Codex], Tools [web browsing], RAG [costum context [propritery data] given for you agent]]
+    3. Agent [LLM [gpt-5.2], Tools, RAG [costum context [propritery data] given for you agent]]
+    4. Agent [LLM, Tools, RAG [costum context [propritery data] given for you agent]]
+
+Ask -> Chatting tool -> chat message 
+Agent -> perform tasks -> creating files 
+Plan -> Deep thinking 
+
+
+
+
+Copilot   -> [data] [256k tokens]   ->  llm [stateless]
+request             ->          process
+response            <-          response
+
+Conversation
+    q1
+    a1
+    q2
+    a2
+    q3
+    a3
+    summarization[q1-a3] [loss of data] -> small paragharp
+    q100
+
+fix function addtwonnumbers() issue 
+{
+    retrived code 
+}
+
+@codebase -> 256k -> copilot -> RAG implementation
+Retrieval, Augmentation, Generation
+
+
+Convestion -> Context data sent from copiolot to llm 
+RAG -> selective context processing 
+
+
+Billing -> no of tokens consumed 
+
+    fix function addtwonnumbers() issue -> 50tokens -> response -> 150 token -> 200 *.33, 200 * 3, 
+    gpt 4.1 = 200 * 0 tokens 
+    gpt-5.4 =3x -> generate compliance report for the ISO 2000 certification 
+
+Copilot -> another process -> copilot -> agents cross connect [tools]
