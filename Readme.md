@@ -1,0 +1,1 @@
+# Ellucian GHC Training
