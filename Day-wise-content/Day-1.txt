@@ -125,4 +125,16 @@ Billing -> no of tokens consumed
     gpt 4.1 = 200 * 0 tokens 
     gpt-5.4 =3x -> generate compliance report for the ISO 2000 certification 
 
-Copilot -> another process -> copilot -> agents cross connect [tools]
+Copilot -> another process -> copilot -> agents cross connect [tools] 
+
+
+Copilot [complete response]      <- streamed-http    <-      LLM 
+
+
+
+Repository: 
+    1. technology stack 
+    2. architecture in place 
+    3. coding standard in place 
+
+1. Custom Instructions -> 
