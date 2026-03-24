@@ -1,0 +1,56 @@
+
+
+SDLC -> 
+    1. Reguirements gathering 
+    2. HLD -> 
+        1. architectual diagrams 
+        2. docs 
+        3. domain understandings 
+        4. architectual artifcats:
+            1. openapi specification -> system designer, architectects 
+                1. endpoints [verb, schema, uri]
+    
+    3. LLD: 
+        1. Implement those services 
+            1. front end and backend app
+            2. mono repo -> front end and backend app [Todo APP -> React js, node js, postgressql, k8s] [github actions, dockers, teraform]
+        2. test cases 
+            0. unit test case -> jest framework
+            1. backend testcase -> postman collection, bruno
+            2. frontend -> playwright
+        3. UI/UX -> figma -> frontend design for you -> reactjs 
+        4. Devops
+            1. container 
+            2. Github actions
+            3. Terraform 
+            4. k8s deployments 
+        5. swagger doc's 
+        6. porduct docs 
+    4. ...
+
+1. Github Copilot Features:
+2. how to creat all artifacts: 
+
+1. Github Copilot [service]
+    1. ide's -> vscode, visual studio, intelij, eclipse, viem
+    2. Cloud -> codespaces, cloud agent, peir review 
+
+1. Github architecture: 
+                server/client          ->          server
+P2P                copilot                ->          LLM []
+
+
+1. Traditional [CLI] vs GAI 2017 [NLP] -> transformers
+    rm filename         delete the file with name filename [meaning delete a file]
+                        put filename in the thrash  [meaning delete a file]
+
+1. Speech to text -> audio -> program -> text 
+
+1. training -> 
+    program -> sign wave -> sampling theorm -> time slice -> phonims -> ah->pa->pa->le -> apple -> model
+    1. convert audio into sampels 
+2. execution -> actual input 
+    input -> model -> output -> 
+
+
+1. Apple [fruit, company, calories, nutirients, stocks, phones, laptops]
