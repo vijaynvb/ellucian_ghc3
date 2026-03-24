@@ -1,0 +1,1136 @@
+openapi: 3.0.3
+info:
+  title: Task Management MVP API
+  version: 1.0.0
+  description: |  
+    OpenAPI specification for a role-based Task Management MVP.
+
+    Key capabilities:
+    - Email/password authentication
+    - Role-based access for END_USER and ADMIN
+    - Task CRUD, assignment, and lifecycle management
+    - Reporting (status summary, overdue, productivity, trend)
+    - In-memory data model for v1
+
+    This API is designed to be import-ready for Express.js tooling, React clients, and Postman.
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local development server
+
+tags:
+  - name: Authentication
+    description: Login and session operations.
+  - name: Users
+    description: User administration and profile management.
+  - name: Tasks
+    description: Task creation, updates, assignment, and lifecycle transitions.
+  - name: Reports
+    description: Operational and trend reporting endpoints.
+
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Login with email and password
+      description: Authenticates a user and returns an access token and user context.
+      security: []
+      requestBody:
+        $ref: '#/components/requestBodies/LoginRequestBody'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+              examples:
+                success:
+                  value:
+                    accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.sample.signature
+                    tokenType: Bearer
+                    expiresInSeconds: 28800
+                    user:
+                      userId: usr_001
+                      email: admin@example.com
+                      role: ADMIN
+                      status: ACTIVE
+                      createdAt: '2026-03-24T08:00:00Z'
+                      updatedAt: '2026-03-24T08:00:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Logout current session
+      description: Invalidates the current token/session for the authenticated user.
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: Logged out successfully
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /users:
+    get:
+      tags: [Users]
+      summary: List users
+      description: Returns a paginated list of users. Admin-only endpoint.
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - name: role
+          in: query
+          description: Optional role filter.
+          schema:
+            $ref: '#/components/schemas/Role'
+        - name: status
+          in: query
+          description: Optional status filter.
+          schema:
+            $ref: '#/components/schemas/UserStatus'
+      responses:
+        '200':
+          description: Paginated users returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+              examples:
+                sample:
+                  value:
+                    data:
+                      - userId: usr_001
+                        email: admin@example.com
+                        role: ADMIN
+                        status: ACTIVE
+                        createdAt: '2026-03-24T08:00:00Z'
+                        updatedAt: '2026-03-24T08:00:00Z'
+                      - userId: usr_002
+                        email: user@example.com
+                        role: END_USER
+                        status: ACTIVE
+                        createdAt: '2026-03-24T08:01:00Z'
+                        updatedAt: '2026-03-24T08:01:00Z'
+                    pagination:
+                      page: 1
+                      pageSize: 20
+                      totalItems: 2
+                      totalPages: 1
+                      hasNextPage: false
+                      hasPreviousPage: false
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags: [Users]
+      summary: Create user
+      description: Creates a new user account. Admin-only endpoint.
+      requestBody:
+        $ref: '#/components/requestBodies/CreateUserRequestBody'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                created:
+                  value:
+                    userId: usr_003
+                    email: analyst@example.com
+                    role: END_USER
+                    status: ACTIVE
+                    createdAt: '2026-03-24T09:30:00Z'
+                    updatedAt: '2026-03-24T09:30:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /users/{userId}:
+    get:
+      tags: [Users]
+      summary: Get user by ID
+      description: Returns a single user by userId. Admin-only endpoint.
+      parameters:
+        - $ref: '#/components/parameters/UserIdPathParam'
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    patch:
+      tags: [Users]
+      summary: Update user status or role
+      description: Updates user role and/or activation status. Admin-only endpoint.
+      parameters:
+        - $ref: '#/components/parameters/UserIdPathParam'
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateUserRequestBody'
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /tasks:
+    get:
+      tags: [Tasks]
+      summary: List tasks with filters
+      description: Returns a paginated list of tasks using optional filtering criteria.
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/TaskStatus'
+        - name: assigneeUserId
+          in: query
+          description: Filter by assigned user.
+          schema:
+            type: string
+            example: usr_002
+        - name: priority
+          in: query
+          schema:
+            $ref: '#/components/schemas/TaskPriority'
+        - name: dueDateFrom
+          in: query
+          description: Include tasks with dueDate greater than or equal to this date.
+          schema:
+            type: string
+            format: date
+            example: '2026-03-24'
+        - name: dueDateTo
+          in: query
+          description: Include tasks with dueDate less than or equal to this date.
+          schema:
+            type: string
+            format: date
+            example: '2026-03-31'
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: [createdAt, dueDate, priority, status]
+            default: createdAt
+        - name: sortOrder
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        '200':
+          description: Paginated tasks returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskListResponse'
+              examples:
+                sample:
+                  value:
+                    data:
+                      - taskId: tsk_1001
+                        title: Prepare sprint kickoff deck
+                        description: Draft agenda and circulate to team leads.
+                        priority: HIGH
+                        status: IN_PROGRESS
+                        dueDate: '2026-03-28'
+                        createdBy: usr_001
+                        assignedTo: usr_002
+                        createdAt: '2026-03-24T09:00:00Z'
+                        updatedAt: '2026-03-24T11:00:00Z'
+                        completedAt: null
+                    pagination:
+                      page: 1
+                      pageSize: 20
+                      totalItems: 1
+                      totalPages: 1
+                      hasNextPage: false
+                      hasPreviousPage: false
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags: [Tasks]
+      summary: Create task
+      description: Creates a new task in NEW status with lifecycle metadata.
+      requestBody:
+        $ref: '#/components/requestBodies/CreateTaskRequestBody'
+      responses:
+        '201':
+          description: Task created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+              examples:
+                created:
+                  value:
+                    taskId: tsk_1002
+                    title: Define QA smoke checklist
+                    description: Capture critical path scenarios for release.
+                    priority: MEDIUM
+                    status: NEW
+                    dueDate: '2026-03-30'
+                    createdBy: usr_002
+                    assignedTo: usr_002
+                    createdAt: '2026-03-24T12:00:00Z'
+                    updatedAt: '2026-03-24T12:00:00Z'
+                    completedAt: null
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /tasks/{taskId}:
+    get:
+      tags: [Tasks]
+      summary: Get task by ID
+      description: Returns a single task by taskId.
+      parameters:
+        - $ref: '#/components/parameters/TaskIdPathParam'
+      responses:
+        '200':
+          description: Task found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    patch:
+      tags: [Tasks]
+      summary: Update task details
+      description: |
+        Updates mutable task fields (title, description, priority, dueDate) when task is non-terminal.
+        Terminal tasks (COMPLETED, CANCELLED) are read-only in v1.
+      parameters:
+        - $ref: '#/components/parameters/TaskIdPathParam'
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateTaskRequestBody'
+      responses:
+        '200':
+          description: Task updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /tasks/{taskId}/status:
+    patch:
+      tags: [Tasks]
+      summary: Update task status
+      description: Applies validated lifecycle transitions and sets completedAt on COMPLETED.
+      parameters:
+        - $ref: '#/components/parameters/TaskIdPathParam'
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateTaskStatusRequestBody'
+      responses:
+        '200':
+          description: Task status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+              examples:
+                completed:
+                  value:
+                    taskId: tsk_1001
+                    title: Prepare sprint kickoff deck
+                    description: Draft agenda and circulate to team leads.
+                    priority: HIGH
+                    status: COMPLETED
+                    dueDate: '2026-03-28'
+                    createdBy: usr_001
+                    assignedTo: usr_002
+                    createdAt: '2026-03-24T09:00:00Z'
+                    updatedAt: '2026-03-25T17:30:00Z'
+                    completedAt: '2026-03-25T17:30:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /tasks/{taskId}/assignee:
+    patch:
+      tags: [Tasks]
+      summary: Assign or reassign task
+      description: Assigns task to an active user according to role-based policy.
+      parameters:
+        - $ref: '#/components/parameters/TaskIdPathParam'
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateTaskAssigneeRequestBody'
+      responses:
+        '200':
+          description: Task assignee updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reports/status-summary:
+    get:
+      tags: [Reports]
+      summary: Get status summary report
+      description: Returns count of tasks grouped by status for current access scope.
+      responses:
+        '200':
+          description: Status summary generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusSummaryReport'
+              examples:
+                sample:
+                  value:
+                    scope: global
+                    generatedAt: '2026-03-24T14:00:00Z'
+                    totalTasks: 18
+                    statusCounts:
+                      - status: NEW
+                        count: 6
+                      - status: IN_PROGRESS
+                        count: 5
+                      - status: BLOCKED
+                        count: 2
+                      - status: COMPLETED
+                        count: 4
+                      - status: CANCELLED
+                        count: 1
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reports/overdue:
+    get:
+      tags: [Reports]
+      summary: Get overdue tasks report
+      description: Returns tasks with dueDate earlier than current date and not in COMPLETED state.
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+      responses:
+        '200':
+          description: Overdue tasks report generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverdueReport'
+              examples:
+                sample:
+                  value:
+                    generatedAt: '2026-03-24T14:05:00Z'
+                    data:
+                      - taskId: tsk_0991
+                        title: Backfill release notes
+                        description: Fill missing release details.
+                        priority: MEDIUM
+                        status: IN_PROGRESS
+                        dueDate: '2026-03-20'
+                        createdBy: usr_001
+                        assignedTo: usr_002
+                        createdAt: '2026-03-10T09:00:00Z'
+                        updatedAt: '2026-03-22T10:00:00Z'
+                        completedAt: null
+                    pagination:
+                      page: 1
+                      pageSize: 20
+                      totalItems: 1
+                      totalPages: 1
+                      hasNextPage: false
+                      hasPreviousPage: false
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reports/productivity:
+    get:
+      tags: [Reports]
+      summary: Get productivity report
+      description: Returns completed task counts and time-series trend for selected period.
+      parameters:
+        - name: period
+          in: query
+          required: true
+          description: Reporting period preset.
+          schema:
+            type: string
+            enum: [daily, weekly, monthly]
+        - name: fromDate
+          in: query
+          description: Optional start date (ISO date).
+          schema:
+            type: string
+            format: date
+        - name: toDate
+          in: query
+          description: Optional end date (ISO date).
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Productivity report generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductivityReport'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reports/trend:
+    get:
+      tags: [Reports]
+      summary: Get created vs completed trend report
+      description: Returns trend points for created and completed tasks over time.
+      parameters:
+        - name: granularity
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [day, week]
+        - name: fromDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: toDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Trend report generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrendReport'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    UserIdPathParam:
+      name: userId
+      in: path
+      required: true
+      description: Unique user identifier.
+      schema:
+        type: string
+        example: usr_001
+    TaskIdPathParam:
+      name: taskId
+      in: path
+      required: true
+      description: Unique task identifier.
+      schema:
+        type: string
+        example: tsk_1001
+    PageParam:
+      name: page
+      in: query
+      description: 1-based page number.
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageSizeParam:
+      name: pageSize
+      in: query
+      description: Number of items per page.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+  requestBodies:
+    LoginRequestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LoginRequest'
+          examples:
+            sample:
+              value:
+                email: admin@example.com
+                password: StrongPassword123!
+    CreateUserRequestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserCreateRequest'
+          examples:
+            sample:
+              value:
+                email: analyst@example.com
+                password: Welcome123!
+                role: END_USER
+                status: ACTIVE
+    UpdateUserRequestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserUpdateRequest'
+          examples:
+            sample:
+              value:
+                role: ADMIN
+                status: ACTIVE
+    CreateTaskRequestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaskCreateRequest'
+          examples:
+            sample:
+              value:
+                title: Define QA smoke checklist
+                description: Capture critical path scenarios for release.
+                priority: MEDIUM
+                dueDate: '2026-03-30'
+                assignedTo: usr_002
+    UpdateTaskRequestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaskUpdateRequest'
+          examples:
+            sample:
+              value:
+                title: Define QA smoke checklist v2
+                description: Include mobile and API regression paths.
+                priority: HIGH
+                dueDate: '2026-03-31'
+    UpdateTaskStatusRequestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaskStatusUpdateRequest'
+          examples:
+            sample:
+              value:
+                status: IN_PROGRESS
+    UpdateTaskAssigneeRequestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaskAssignmentRequest'
+          examples:
+            sample:
+              value:
+                assignedTo: usr_003
+
+  responses:
+    BadRequestError:
+      description: Request validation failed or business rule violation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: BAD_REQUEST
+            message: Invalid payload. title must be between 3 and 120 characters.
+            timestamp: '2026-03-24T12:15:00Z'
+    NotFoundError:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: NOT_FOUND
+            message: Task with id tsk_9999 not found.
+            timestamp: '2026-03-24T12:16:00Z'
+    InternalServerError:
+      description: Unexpected server error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: INTERNAL_SERVER_ERROR
+            message: An unexpected error occurred.
+            timestamp: '2026-03-24T12:17:00Z'
+
+  schemas:
+    Role:
+      type: string
+      enum: [END_USER, ADMIN]
+
+    UserStatus:
+      type: string
+      enum: [ACTIVE, INACTIVE]
+
+    TaskPriority:
+      type: string
+      enum: [LOW, MEDIUM, HIGH]
+
+    TaskStatus:
+      type: string
+      enum: [NEW, IN_PROGRESS, BLOCKED, COMPLETED, CANCELLED]
+
+    ErrorResponse:
+      type: object
+      required: [code, message, timestamp]
+      properties:
+        code:
+          type: string
+          description: Stable machine-readable error code.
+          example: BAD_REQUEST
+        message:
+          type: string
+          description: Human-readable error message.
+          example: Invalid lifecycle transition NEW -> COMPLETED.
+        timestamp:
+          type: string
+          format: date-time
+          description: Error generation time in UTC.
+          example: '2026-03-24T12:15:00Z'
+
+    MessageResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          example: Operation completed successfully
+
+    PaginationMeta:
+      type: object
+      required: [page, pageSize, totalItems, totalPages, hasNextPage, hasPreviousPage]
+      properties:
+        page:
+          type: integer
+          minimum: 1
+          example: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 100
+          example: 20
+        totalItems:
+          type: integer
+          minimum: 0
+          example: 42
+        totalPages:
+          type: integer
+          minimum: 0
+          example: 3
+        hasNextPage:
+          type: boolean
+          example: true
+        hasPreviousPage:
+          type: boolean
+          example: false
+
+    User:
+      type: object
+      required: [userId, email, role, status, createdAt, updatedAt]
+      properties:
+        userId:
+          type: string
+          example: usr_001
+        email:
+          type: string
+          format: email
+          example: admin@example.com
+        role:
+          $ref: '#/components/schemas/Role'
+        status:
+          $ref: '#/components/schemas/UserStatus'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UserCreateRequest:
+      type: object
+      required: [email, password, role]
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          minLength: 8
+          description: Plain-text input accepted only at creation/login; system stores hash.
+          example: Welcome123!
+        role:
+          $ref: '#/components/schemas/Role'
+        status:
+          $ref: '#/components/schemas/UserStatus'
+
+    UserUpdateRequest:
+      type: object
+      minProperties: 1
+      properties:
+        role:
+          $ref: '#/components/schemas/Role'
+        status:
+          $ref: '#/components/schemas/UserStatus'
+
+    UserListResponse:
+      type: object
+      required: [data, pagination]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        pagination:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: admin@example.com
+        password:
+          type: string
+          minLength: 8
+          example: StrongPassword123!
+
+    LoginResponse:
+      type: object
+      required: [accessToken, tokenType, expiresInSeconds, user]
+      properties:
+        accessToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.sample.signature
+        tokenType:
+          type: string
+          example: Bearer
+        expiresInSeconds:
+          type: integer
+          minimum: 1
+          example: 28800
+        user:
+          $ref: '#/components/schemas/User'
+
+    Task:
+      type: object
+      required:
+        - taskId
+        - title
+        - priority
+        - status
+        - createdBy
+        - createdAt
+        - updatedAt
+      properties:
+        taskId:
+          type: string
+          example: tsk_1001
+        title:
+          type: string
+          minLength: 3
+          maxLength: 120
+          example: Prepare sprint kickoff deck
+        description:
+          type: string
+          maxLength: 2000
+          nullable: true
+          example: Draft agenda and circulate to team leads.
+        priority:
+          $ref: '#/components/schemas/TaskPriority'
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+        dueDate:
+          type: string
+          format: date
+          nullable: true
+          example: '2026-03-28'
+        createdBy:
+          type: string
+          example: usr_001
+        assignedTo:
+          type: string
+          nullable: true
+          example: usr_002
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    TaskCreateRequest:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          minLength: 3
+          maxLength: 120
+          example: Define QA smoke checklist
+        description:
+          type: string
+          maxLength: 2000
+          nullable: true
+          example: Capture critical path scenarios for release.
+        priority:
+          $ref: '#/components/schemas/TaskPriority'
+        dueDate:
+          type: string
+          format: date
+          nullable: true
+          example: '2026-03-30'
+        assignedTo:
+          type: string
+          nullable: true
+          example: usr_002
+
+    TaskUpdateRequest:
+      type: object
+      minProperties: 1
+      properties:
+        title:
+          type: string
+          minLength: 3
+          maxLength: 120
+        description:
+          type: string
+          maxLength: 2000
+          nullable: true
+        priority:
+          $ref: '#/components/schemas/TaskPriority'
+        dueDate:
+          type: string
+          format: date
+          nullable: true
+
+    TaskStatusUpdateRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+
+    TaskAssignmentRequest:
+      type: object
+      required: [assignedTo]
+      properties:
+        assignedTo:
+          type: string
+          description: Target assignee userId. Must reference an ACTIVE user.
+          example: usr_003
+
+    TaskListResponse:
+      type: object
+      required: [data, pagination]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        pagination:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    StatusCount:
+      type: object
+      required: [status, count]
+      properties:
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+        count:
+          type: integer
+          minimum: 0
+          example: 4
+
+    StatusSummaryReport:
+      type: object
+      required: [scope, generatedAt, totalTasks, statusCounts]
+      properties:
+        scope:
+          type: string
+          enum: [user, global]
+          example: global
+        generatedAt:
+          type: string
+          format: date-time
+        totalTasks:
+          type: integer
+          minimum: 0
+          example: 18
+        statusCounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusCount'
+
+    OverdueReport:
+      type: object
+      required: [generatedAt, data, pagination]
+      properties:
+        generatedAt:
+          type: string
+          format: date-time
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        pagination:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    ProductivityPoint:
+      type: object
+      required: [label, completedCount]
+      properties:
+        label:
+          type: string
+          description: Bucket label (date, week, or month)
+          example: 2026-03-24
+        completedCount:
+          type: integer
+          minimum: 0
+          example: 7
+
+    ProductivityReport:
+      type: object
+      required: [scope, period, fromDate, toDate, totalCompleted, series]
+      properties:
+        scope:
+          type: string
+          enum: [user, global]
+          example: user
+        period:
+          type: string
+          enum: [daily, weekly, monthly]
+          example: weekly
+        fromDate:
+          type: string
+          format: date
+          example: '2026-03-01'
+        toDate:
+          type: string
+          format: date
+          example: '2026-03-31'
+        totalCompleted:
+          type: integer
+          minimum: 0
+          example: 16
+        series:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductivityPoint'
+
+    TrendPoint:
+      type: object
+      required: [label, createdCount, completedCount]
+      properties:
+        label:
+          type: string
+          example: 2026-W12
+        createdCount:
+          type: integer
+          minimum: 0
+          example: 8
+        completedCount:
+          type: integer
+          minimum: 0
+          example: 6
+
+    TrendReport:
+      type: object
+      required: [scope, granularity, fromDate, toDate, points]
+      properties:
+        scope:
+          type: string
+          enum: [user, global]
+          example: global
+        granularity:
+          type: string
+          enum: [day, week]
+          example: week
+        fromDate:
+          type: string
+          format: date
+          example: '2026-03-01'
+        toDate:
+          type: string
+          format: date
+          example: '2026-03-31'
+        points:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrendPoint'
