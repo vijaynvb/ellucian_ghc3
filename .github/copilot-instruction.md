@@ -7,6 +7,7 @@ description: Describe when these instructions should be loaded by the agent base
 - Use meaningful names (camelCase for variables, PascalCase for classes).
 - Keep functions short and single-purpose.
 - Avoid deeply nested conditionals.
+- for backend application create a folder called Backend and for frontend application create a folder called Frontend. Do not mix backend and frontend code in the same folder.
 
 ## Logging
 - Use structured logs.

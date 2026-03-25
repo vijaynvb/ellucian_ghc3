@@ -84,15 +84,23 @@ graph TB
     end
 
     ReactQuery -->|"HTTP REST\nBearer token"| Router
-    ValMW --> AuthCtrl & UserCtrl & TaskCtrl & ReportCtrl
+    ValMW --> AuthCtrl
+    ValMW --> UserCtrl
+    ValMW --> TaskCtrl
+    ValMW --> ReportCtrl
     AuthCtrl --> AuthSvc
     UserCtrl --> UserSvc
     TaskCtrl --> TaskSvc
     ReportCtrl --> ReportSvc
-    AuthSvc --> UserRepo & TokenStore & JWT & Bcrypt
+    AuthSvc --> UserRepo
+    AuthSvc --> TokenStore
+    AuthSvc --> JWT
+    AuthSvc --> Bcrypt
     UserSvc --> UserRepo
-    TaskSvc --> TaskRepo & UserRepo
-    ReportSvc --> TaskRepo & UserRepo
+    TaskSvc --> TaskRepo
+    TaskSvc --> UserRepo
+    ReportSvc --> TaskRepo
+    ReportSvc --> UserRepo
     UserRepo --> UsersMap
     TaskRepo --> TasksMap
     TokenStore --> BlacklistSet
@@ -504,7 +512,7 @@ sequenceDiagram
     participant TB as TokenBlacklist
 
     User->>UI: Click "Logout"
-    UI->>API: POST /api/v1/auth/logout\nAuthorization: Bearer <token>
+    UI->>API: POST /api/v1/auth/logout\nAuthorization: Bearer [token]
     API->>AuthMW: verify token signature + expiry
     alt Token invalid / expired
         AuthMW-->>UI: 401 UNAUTHORIZED
@@ -538,7 +546,7 @@ sequenceDiagram
     participant Bcrypt as bcryptjs
 
     Admin->>UI: Fill user form → Submit
-    UI->>API: POST /api/v1/users\nBearer <adminToken>\n{ email, password, role, status }
+    UI->>API: POST /api/v1/users\nBearer [adminToken]\n{ email, password, role, status }
     API->>AuthMW: verify JWT
     AuthMW->>RoleMW: req.user.role === ADMIN?
     alt Not ADMIN
@@ -585,7 +593,7 @@ sequenceDiagram
     participant UR as UserRepository
 
     Admin->>UI: Navigate to Users page / apply filter
-    UI->>API: GET /api/v1/users?role=END_USER&page=1&pageSize=20\nBearer <adminToken>
+    UI->>API: GET /api/v1/users?role=END_USER&page=1&pageSize=20\nBearer [adminToken]
     API->>AuthMW: verify JWT
     AuthMW->>RoleMW: assert ADMIN
     RoleMW->>UC: next()
@@ -617,7 +625,7 @@ sequenceDiagram
     participant TR as TaskRepository
 
     EndUser->>UI: Fill task form → Submit
-    UI->>API: POST /api/v1/tasks\nBearer <token>\n{ title, description, priority, dueDate, assignedTo }
+    UI->>API: POST /api/v1/tasks\nBearer [token]\n{ title, description, priority, dueDate, assignedTo }
     API->>AuthMW: verify JWT → req.user
     AuthMW->>ValMW: validate body (title 3-120, description ≤2000)
     alt Validation fails
@@ -658,7 +666,7 @@ sequenceDiagram
     participant TR as TaskRepository
 
     User->>UI: Apply filters (status, priority, dueDate range)
-    UI->>API: GET /api/v1/tasks?status=IN_PROGRESS&priority=HIGH\n&dueDateFrom=2026-03-24&sortBy=dueDate&sortOrder=asc\n&page=1&pageSize=20\nBearer <token>
+    UI->>API: GET /api/v1/tasks?status=IN_PROGRESS&priority=HIGH\n&dueDateFrom=2026-03-24&sortBy=dueDate&sortOrder=asc\n&page=1&pageSize=20\nBearer [token]
     API->>AuthMW: verify JWT → req.user { userId, role }
     AuthMW->>TC: next()
     TC->>TS: listTasks(filters, page, pageSize, requestor)
@@ -688,7 +696,7 @@ sequenceDiagram
     participant TR as TaskRepository
 
     User->>UI: Edit task fields → Save
-    UI->>API: PATCH /api/v1/tasks/tsk_1001\nBearer <token>\n{ title, description, priority, dueDate }
+    UI->>API: PATCH /api/v1/tasks/tsk_1001\nBearer [token]\n{ title, description, priority, dueDate }
     API->>AuthMW: verify JWT
     AuthMW->>ValMW: validate body (minProperties: 1)
     alt Validation fails
@@ -734,7 +742,7 @@ sequenceDiagram
     participant TR as TaskRepository
 
     User->>UI: Change task status → Submit
-    UI->>API: PATCH /api/v1/tasks/tsk_1001/status\nBearer <token>\n{ status: "COMPLETED" }
+    UI->>API: PATCH /api/v1/tasks/tsk_1001/status\nBearer [token]\n{ status: "COMPLETED" }
     API->>AuthMW: verify JWT
     AuthMW->>TC: next()
     TC->>TS: updateStatus(taskId, newStatus, requestor)
@@ -777,7 +785,7 @@ sequenceDiagram
     participant UR as UserRepository
 
     Admin->>UI: Select new assignee from dropdown → Save
-    UI->>API: PATCH /api/v1/tasks/tsk_1001/assignee\nBearer <adminToken>\n{ assignedTo: "usr_003" }
+    UI->>API: PATCH /api/v1/tasks/tsk_1001/assignee\nBearer [adminToken]\n{ assignedTo: "usr_003" }
     API->>AuthMW: verify JWT → req.user
     AuthMW->>TC: next()
     TC->>TS: updateAssignee(taskId, assignedTo, requestor)
@@ -820,13 +828,13 @@ sequenceDiagram
     participant TR as TaskRepository
 
     User->>UI: Open Dashboard
-    UI->>API: GET /api/v1/reports/status-summary\nBearer <token>
+    UI->>API: GET /api/v1/reports/status-summary\nBearer [token]
     API->>AuthMW: verify JWT → req.user { userId, role }
     AuthMW->>RC: next()
     RC->>RS: statusSummary(scope, userId)
     Note over RS: ADMIN → scope=global (all tasks)\nEND_USER → scope=user (own tasks)
     RS->>TR: countByStatus(effectiveScope)
-    TR-->>RS: Map&lt;TaskStatus, count&gt;
+    TR-->>RS: status count map
     RS->>RS: build StatusSummaryReport\n{ scope, generatedAt, totalTasks, statusCounts[] }
     RS-->>RC: StatusSummaryReport
     RC-->>UI: 200 OK StatusSummaryReport
@@ -848,7 +856,7 @@ sequenceDiagram
     participant TR as TaskRepository
 
     User->>UI: Open "Overdue" tab
-    UI->>API: GET /api/v1/reports/overdue?page=1&pageSize=20\nBearer <token>
+    UI->>API: GET /api/v1/reports/overdue?page=1&pageSize=20\nBearer [token]
     API->>AuthMW: verify JWT → req.user
     AuthMW->>RC: next()
     RC->>RS: overdueTasks(scope, userId, { page, pageSize })
@@ -875,7 +883,7 @@ sequenceDiagram
     participant TR as TaskRepository
 
     User->>UI: Select period=weekly + date range → Generate
-    UI->>API: GET /api/v1/reports/productivity\n?period=weekly&fromDate=2026-03-01&toDate=2026-03-31\nBearer <token>
+    UI->>API: GET /api/v1/reports/productivity\n?period=weekly&fromDate=2026-03-01&toDate=2026-03-31\nBearer [token]
     API->>AuthMW: verify JWT
     AuthMW->>RC: next()
     RC->>RS: productivity(scope, userId, period, fromDate, toDate)
@@ -903,7 +911,7 @@ sequenceDiagram
     participant TR as TaskRepository
 
     Admin->>UI: Set granularity=week + date range → Generate
-    UI->>API: GET /api/v1/reports/trend\n?granularity=week&fromDate=2026-03-01&toDate=2026-03-31\nBearer <adminToken>
+    UI->>API: GET /api/v1/reports/trend\n?granularity=week&fromDate=2026-03-01&toDate=2026-03-31\nBearer [adminToken]
     API->>AuthMW: verify JWT
     AuthMW->>RC: next()
     RC->>RS: trend(scope, userId, granularity, fromDate, toDate)
