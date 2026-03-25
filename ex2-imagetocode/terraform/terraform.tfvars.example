@@ -1,0 +1,12 @@
+aws_region = "us-east-1"
+project_name = "image2code-appsync"
+
+enable_amplify = true
+amplify_repository_url = "https://github.com/your-org/your-frontend-repo"
+amplify_access_token = "your-github-or-gitlab-oauth-token"
+amplify_branch_name = "main"
+
+tags = {
+  Environment = "dev"
+  Owner       = "team-x"
+}
