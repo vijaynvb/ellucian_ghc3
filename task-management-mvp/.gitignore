@@ -1,0 +1,67 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Build outputs
+dist/
+build/
+coverage/
+.nyc_output/
+*.tsbuildinfo
+backend/dist/
+frontend/dist/
+
+# Vite / cache
+.vite/
+.eslintcache
+.cache/
+
+# Environment files
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
+
+# Testing
+junit.xml
+test-results/
+playwright-report/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Package manager metadata (optional local files)
+.pnpm-store/
+.npm/
+.yarn/
+
+# Misc
+*.local
+tmp/
+temp/
