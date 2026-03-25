@@ -39,7 +39,7 @@ export const LoginPage = () => {
     <section className={styles.shell}>
       <div className={styles.contentPanel}>
         <div className={styles.content}>
-          <h1 className={styles.brand}>Company Name</h1>
+          <h1 className={styles.brand}>Ellucian</h1>
           <p className={styles.intro}>Welcome back! Please login to your account.</p>
 
           <form className={styles.form} onSubmit={(event) => void handleSubmit(onSubmit)(event)} noValidate>
