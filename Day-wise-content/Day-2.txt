@@ -36,4 +36,19 @@ Mcp -> client -> server
     1. Streaming-http [client -> [remote + task to be done http protocol] -> server]
     2. stdio [client -> [local + task to be done on filesystem] -> server]
 
-https://www.figma.com/design/KOYbSQgWKI7kyqVVr3dqyq/LoginPage?node-id=1-5&m=dev
+https://www.figma.com/design/KOYbSQgWKI7kyqVVr3dqyq/LoginPage?node-id=1-5&m=dev 
+
+Remote Figma MCP: 
+    Figma account:
+    have a design in the account: LoginPage.fig
+    remote server: mcp.json
+    connect to the server: athuntication
+
+Custom MCP Server: 
+    restapi: datasource [add 2numbers, todos from jsontypicode, weatherapi]
+    create a mcp server:
+        expose tools:
+        run ur server:
+    local server: mcp.json
+    connect to the server:
+
