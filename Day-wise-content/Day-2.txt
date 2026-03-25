@@ -15,3 +15,25 @@
         2. files .editorconfig [sonarcube, tools reading the file system ]
     3. Testing agent 
     4. Deployment agent
+
+
+Agentic AI -> Copilot Ochastrator [llm, rag, tools]
+
+1. agent 1
+2. agent 2
+3. agent 3
+4. agent 4
+
+AI Application                    Agents
+
+Copilot [integration]             Agent 1 [local]
+Cursor [integration]              Agent 2 [remote]
+Claude [integration]              Agent 3 
+
+Antrophic [MCP- Model Context Protocol]
+
+Mcp -> client -> server
+    1. Streaming-http [client -> [remote + task to be done http protocol] -> server]
+    2. stdio [client -> [local + task to be done on filesystem] -> server]
+
+https://www.figma.com/design/KOYbSQgWKI7kyqVVr3dqyq/LoginPage?node-id=1-5&m=dev
