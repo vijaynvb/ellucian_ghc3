@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*.tsx,**/*.ts"
+applyTo: "~/task-management-mvp/frontend/**/*.tsx,~/task-management-mvp/frontend/**/*.ts"
 description: This file describes the React frontend code style for the project.
 ---
 
