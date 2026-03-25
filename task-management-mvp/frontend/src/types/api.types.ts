@@ -19,11 +19,21 @@ export interface Task {
   priority: TaskPriority;
   status: TaskStatus;
   dueDate: string | null;
+  categoryId: string | null;
   createdBy: string;
   assignedTo: string | null;
   createdAt: string;
   updatedAt: string;
   completedAt: string | null;
+}
+
+export interface Category {
+  categoryId: string;
+  name: string;
+  description: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface PaginationMeta {
@@ -37,6 +47,11 @@ export interface PaginationMeta {
 
 export interface TaskListResponse {
   data: Task[];
+  pagination: PaginationMeta;
+}
+
+export interface CategoryListResponse {
+  data: Category[];
   pagination: PaginationMeta;
 }
 

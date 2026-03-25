@@ -11,6 +11,7 @@ export const AppLayout = () => {
         <nav>
           <Link to="/">Dashboard</Link>
           <Link to="/tasks">Tasks</Link>
+          {user?.role === "ADMIN" && <Link to="/categories">Categories</Link>}
           <Link to="/reports">Reports</Link>
         </nav>
         <div>

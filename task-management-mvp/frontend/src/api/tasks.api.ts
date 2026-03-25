@@ -16,6 +16,7 @@ export const tasksApi = {
     priority?: "LOW" | "MEDIUM" | "HIGH";
     dueDate?: string | null;
     assignedTo?: string | null;
+    categoryId?: string | null;
   }) => {
     const response = await http.post<Task>("/tasks", payload);
     return response.data;
@@ -27,6 +28,7 @@ export const tasksApi = {
       description?: string | null;
       priority?: "LOW" | "MEDIUM" | "HIGH";
       dueDate?: string | null;
+      categoryId?: string | null;
     }
   ) => {
     const response = await http.patch<Task>(`/tasks/${taskId}`, payload);

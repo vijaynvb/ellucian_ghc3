@@ -6,3 +6,12 @@
     2. Backend developer 
     3. DevOps engineer 
     4. QA engineer
+3. Task specific Agents
+    1. Code generation agent 
+        1. LLM -> cluaude sonet
+        2. Confluence -> [tools web tools]
+    2. Code review agent 
+        1. LLM -> gpt5.2-codex
+        2. files .editorconfig [sonarcube, tools reading the file system ]
+    3. Testing agent 
+    4. Deployment agent

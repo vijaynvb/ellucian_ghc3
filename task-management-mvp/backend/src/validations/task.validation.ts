@@ -11,6 +11,7 @@ export const taskValidation = {
       status: taskStatus.optional(),
       assigneeUserId: z.string().optional(),
       priority: taskPriority.optional(),
+      categoryId: z.string().min(1).optional(),
       dueDateFrom: z.string().date().optional(),
       dueDateTo: z.string().date().optional(),
       sortBy: z.enum(["createdAt", "dueDate", "priority", "status"]).optional(),
@@ -25,7 +26,8 @@ export const taskValidation = {
       description: z.string().max(2000).nullable().optional(),
       priority: taskPriority.optional(),
       dueDate: z.string().date().nullable().optional(),
-      assignedTo: z.string().nullable().optional()
+      assignedTo: z.string().nullable().optional(),
+      categoryId: z.string().min(1).nullable().optional()
     }),
     query: z.object({}).optional(),
     params: z.object({}).optional()
@@ -42,7 +44,8 @@ export const taskValidation = {
         title: z.string().min(3).max(120).optional(),
         description: z.string().max(2000).nullable().optional(),
         priority: taskPriority.optional(),
-        dueDate: z.string().date().nullable().optional()
+        dueDate: z.string().date().nullable().optional(),
+        categoryId: z.string().min(1).nullable().optional()
       })
       .refine((value) => Object.keys(value).length > 0, "At least one field is required"),
     query: z.object({}).optional()

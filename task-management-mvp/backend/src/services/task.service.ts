@@ -1,10 +1,21 @@
-import { tasks, users } from "../data/inMemoryDb";
+import { categories, tasks, users } from "../data/inMemoryDb";
 import { Task, TaskPriority, TaskStatus } from "../models/task.model";
 import { AuthenticatedRequest } from "../middleware/auth.middleware";
 import { AppError } from "../utils/appError";
 import { buildPagination } from "../utils/pagination";
 
 const terminalStatuses: TaskStatus[] = ["COMPLETED", "CANCELLED"];
+
+const resolveCategory = (categoryId?: string | null): void => {
+  if (categoryId === undefined || categoryId === null) {
+    return;
+  }
+
+  const category = categories.find((item) => item.categoryId === categoryId);
+  if (!category || !category.isActive) {
+    throw new AppError("BAD_REQUEST", 400, "categoryId must reference an ACTIVE category.");
+  }
+};
 
 const canAccessTask = (task: Task, currentUser: NonNullable<AuthenticatedRequest["user"]>): boolean => {
   if (currentUser.role === "ADMIN") {
@@ -59,6 +70,9 @@ export const taskService = {
     if (query.priority) {
       filtered = filtered.filter((item) => item.priority === query.priority);
     }
+    if (query.categoryId) {
+      filtered = filtered.filter((item) => item.categoryId === query.categoryId);
+    }
 
     const start = (page - 1) * pageSize;
     const data = filtered.slice(start, start + pageSize);
@@ -76,9 +90,12 @@ export const taskService = {
       priority?: TaskPriority;
       dueDate?: string | null;
       assignedTo?: string | null;
+      categoryId?: string | null;
     },
     currentUser: NonNullable<AuthenticatedRequest["user"]>
   ) => {
+    resolveCategory(payload.categoryId);
+
     if (payload.assignedTo) {
       const assignee = users.find((item) => item.userId === payload.assignedTo && item.status === "ACTIVE");
       if (!assignee) {
@@ -94,6 +111,7 @@ export const taskService = {
       priority: payload.priority ?? "MEDIUM",
       status: "NEW",
       dueDate: payload.dueDate ?? null,
+      categoryId: payload.categoryId ?? null,
       createdBy: currentUser.userId,
       assignedTo: payload.assignedTo ?? null,
       createdAt: now,
@@ -117,7 +135,13 @@ export const taskService = {
 
   update: async (
     taskId: string,
-    payload: { title?: string; description?: string | null; priority?: TaskPriority; dueDate?: string | null },
+    payload: {
+      title?: string;
+      description?: string | null;
+      priority?: TaskPriority;
+      dueDate?: string | null;
+      categoryId?: string | null;
+    },
     currentUser: NonNullable<AuthenticatedRequest["user"]>
   ) => {
     const task = tasks.find((item) => item.taskId === taskId);
@@ -135,6 +159,10 @@ export const taskService = {
     if (payload.description !== undefined) task.description = payload.description;
     if (payload.priority !== undefined) task.priority = payload.priority;
     if (payload.dueDate !== undefined) task.dueDate = payload.dueDate;
+    if (payload.categoryId !== undefined) {
+      resolveCategory(payload.categoryId);
+      task.categoryId = payload.categoryId ?? null;
+    }
 
     task.updatedAt = new Date().toISOString();
     return task;

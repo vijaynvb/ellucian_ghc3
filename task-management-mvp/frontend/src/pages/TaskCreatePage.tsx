@@ -13,7 +13,8 @@ export const TaskCreatePage = () => {
       description: values.description ?? null,
       priority: values.priority,
       dueDate: values.dueDate ?? null,
-      assignedTo: values.assignedTo ?? null
+      assignedTo: values.assignedTo ?? null,
+      categoryId: values.categoryId ? values.categoryId : null
     });
 
     navigate("/tasks");

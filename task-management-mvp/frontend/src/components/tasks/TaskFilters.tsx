@@ -1,12 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useCategories } from "../../hooks/useCategories";
 
 interface TaskFiltersProps {
-  onApply: (filters: { status?: string; priority?: string }) => void;
+  onApply: (filters: { status?: string; priority?: string; categoryId?: string }) => void;
 }
 
 export const TaskFilters = ({ onApply }: TaskFiltersProps) => {
   const [status, setStatus] = useState("");
   const [priority, setPriority] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const { categories, loadCategories, isLoading } = useCategories();
+
+  useEffect(() => {
+    void loadCategories({ page: 1, pageSize: 100, isActive: true });
+  }, [loadCategories]);
 
   return (
     <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
@@ -24,7 +31,23 @@ export const TaskFilters = ({ onApply }: TaskFiltersProps) => {
         <option value="MEDIUM">MEDIUM</option>
         <option value="HIGH">HIGH</option>
       </select>
-      <button onClick={() => onApply({ status: status || undefined, priority: priority || undefined })}>
+      <select value={categoryId} onChange={(event) => setCategoryId(event.target.value)} disabled={isLoading}>
+        <option value="">All Categories</option>
+        {categories.map((category) => (
+          <option key={category.categoryId} value={category.categoryId}>
+            {category.name}
+          </option>
+        ))}
+      </select>
+      <button
+        onClick={() =>
+          onApply({
+            status: status || undefined,
+            priority: priority || undefined,
+            categoryId: categoryId || undefined
+          })
+        }
+      >
         Apply
       </button>
     </div>

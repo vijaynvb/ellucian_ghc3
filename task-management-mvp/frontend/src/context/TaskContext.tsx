@@ -12,6 +12,7 @@ interface TaskContextValue {
     priority?: "LOW" | "MEDIUM" | "HIGH";
     dueDate?: string | null;
     assignedTo?: string | null;
+    categoryId?: string | null;
   }) => Promise<Task>;
   updateTask: (taskId: string, payload: Partial<Task>) => Promise<Task>;
   updateStatus: (taskId: string, status: Task["status"]) => Promise<Task>;
@@ -39,6 +40,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     priority?: "LOW" | "MEDIUM" | "HIGH";
     dueDate?: string | null;
     assignedTo?: string | null;
+    categoryId?: string | null;
   }) => {
     const task = await tasksApi.create(payload);
     setTasks((prev) => [task, ...prev]);

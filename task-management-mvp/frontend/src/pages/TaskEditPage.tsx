@@ -36,7 +36,8 @@ export const TaskEditPage = () => {
       title: values.title,
       description: values.description ?? null,
       priority: values.priority,
-      dueDate: values.dueDate ?? null
+      dueDate: values.dueDate ?? null,
+      categoryId: values.categoryId ? values.categoryId : null
     });
     navigate("/tasks");
   };
@@ -50,7 +51,8 @@ export const TaskEditPage = () => {
           description: task.description ?? "",
           priority: task.priority,
           dueDate: task.dueDate ?? "",
-          assignedTo: task.assignedTo ?? ""
+          assignedTo: task.assignedTo ?? "",
+          categoryId: task.categoryId ?? ""
         }}
         onSubmit={onSubmit}
       />

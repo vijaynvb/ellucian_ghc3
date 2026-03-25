@@ -29,4 +29,29 @@ export const users: User[] = [
 
 export const tasks: Task[] = [];
 
-export const categories: Category[] = [];
+export const categories: Category[] = [
+  {
+    categoryId: "cat_1001",
+    name: "Work",
+    description: "Tasks related to work projects and deliverables.",
+    isActive: true,
+    createdAt: now,
+    updatedAt: now
+  },
+  {
+    categoryId: "cat_1002",
+    name: "Personal",
+    description: "Personal errands and growth goals.",
+    isActive: true,
+    createdAt: now,
+    updatedAt: now
+  },
+  {
+    categoryId: "cat_1003",
+    name: "Others",
+    description: "Miscellaneous tasks that do not fit other categories.",
+    isActive: true,
+    createdAt: now,
+    updatedAt: now
+  }
+];
