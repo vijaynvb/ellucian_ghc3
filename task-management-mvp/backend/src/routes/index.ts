@@ -1,5 +1,6 @@
 import { Router } from "express";
 import authRoutes from "./auth.routes";
+import categoryRoutes from "./category.routes";
 import reportRoutes from "./report.routes";
 import taskRoutes from "./task.routes";
 import userRoutes from "./user.routes";
@@ -11,6 +12,7 @@ router.use("/auth", authRoutes);
 router.use(requireAuth);
 router.use("/users", userRoutes);
 router.use("/tasks", taskRoutes);
+router.use("/categories", categoryRoutes);
 router.use("/reports", reportRoutes);
 
 export default router;

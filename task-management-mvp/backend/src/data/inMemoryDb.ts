@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import { Category } from "../models/category.model";
 import { Task } from "../models/task.model";
 import { User } from "../models/user.model";
 
@@ -27,3 +28,5 @@ export const users: User[] = [
 ];
 
 export const tasks: Task[] = [];
+
+export const categories: Category[] = [];
