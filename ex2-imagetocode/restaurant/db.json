@@ -1,0 +1,22 @@
+{
+  "appetizers": [
+    { "id": 1, "name": "Meal 1", "description": "Lorem ipsum dolor sit amet.", "price": 10 },
+    { "id": 2, "name": "Meal 2", "description": "Lorem ipsum dolor sit amet.", "price": 10 },
+    { "id": 3, "name": "Meal 3", "description": "Lorem ipsum dolor sit amet.", "price": 10 }
+  ],
+  "mainCourses": [
+    { "id": 1, "name": "Meal 1", "description": "Lorem ipsum dolor sit amet.", "price": 10 },
+    { "id": 2, "name": "Meal 2", "description": "Lorem ipsum dolor sit amet.", "price": 10 },
+    { "id": 3, "name": "Meal 3", "description": "Lorem ipsum dolor sit amet.", "price": 10 }
+  ],
+  "desserts": [
+    { "id": 1, "name": "Meal 1", "description": "Lorem ipsum dolor sit amet.", "price": 10 },
+    { "id": 2, "name": "Meal 2", "description": "Lorem ipsum dolor sit amet.", "price": 10 },
+    { "id": 3, "name": "Meal 3", "description": "Lorem ipsum dolor sit amet.", "price": 10 }
+  ],
+  "drinks": [
+    { "id": 1, "name": "Drink 1", "price": 5 },
+    { "id": 2, "name": "Drink 2", "price": 5 },
+    { "id": 3, "name": "Drink 3", "price": 5 }
+  ]
+}

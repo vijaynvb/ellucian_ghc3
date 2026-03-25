@@ -1,0 +1,129 @@
+:root {
+  --page-bg: #f4f1ee;
+  --card-bg: #faf8f6;
+  --border: #bdb4ac;
+  --title: #5c433b;
+  --text: #6a5e58;
+  --heading: #3f322c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--page-bg);
+  color: var(--text);
+  font-family: "Poppins", sans-serif;
+}
+
+.accommodation-section {
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 46px 44px 48px;
+}
+
+.section-title {
+  margin: 0 0 30px;
+  text-align: center;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(2.25rem, 4vw, 4rem);
+  line-height: 1;
+  font-weight: 500;
+  color: var(--title);
+  letter-spacing: 0.5px;
+}
+
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.room-card {
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+}
+
+.room-image {
+  display: block;
+  width: 100%;
+  height: 255px;
+  object-fit: cover;
+}
+
+.room-content {
+  border-top: 1px solid var(--border);
+  padding: 26px 22px 24px;
+}
+
+.room-occupancy {
+  margin: 0 0 22px;
+  color: #8e827b;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.room-name {
+  margin: 0 0 8px;
+  color: var(--heading);
+  font-size: clamp(1.8rem, 2.4vw, 2.8rem);
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  line-height: 1.18;
+}
+
+.room-price {
+  margin: 0;
+  color: #5a4e47;
+  font-size: 25px;
+  font-weight: 500;
+}
+
+@media (max-width: 1200px) {
+  .room-image {
+    height: 220px;
+  }
+
+  .room-occupancy {
+    font-size: 16px;
+  }
+
+  .room-price {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 960px) {
+  .accommodation-section {
+    padding: 36px 18px 30px;
+  }
+
+  .room-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .room-image {
+    height: 245px;
+  }
+
+  .room-content {
+    padding: 22px 18px;
+  }
+
+  .room-occupancy {
+    margin-bottom: 14px;
+    font-size: 15px;
+  }
+
+  .room-name {
+    font-size: 1.75rem;
+  }
+
+  .room-price {
+    font-size: 20px;
+  }
+}
